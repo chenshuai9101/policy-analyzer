@@ -1,442 +1,290 @@
-# 政策拆解分析器
+---
+name: policy-analyzer
+description: 帮助创业者和求职者快速理解政策红利，降低政策信息获取门槛，提供政策检索、解析、匹配和时效提醒等功能
+metadata:
+  openclaw:
+    emoji: 📋
+    aiFriendly: true
+    plugAndPlay: true
+    requires:
+      minimal: true
+      packages: ['python>=3.8', 'elasticsearch', 'requests', 'pandas']
+    category: business
+    tags: ['policy', 'business', 'analysis', 'government', 'subsidy']
+version: 1.0.0
+---
 
-## 一、Skill概述
+# Policy Analyzer
 
-- **名称**：policy-analyzer
-- **版本**：v1.0
-- **目标**：帮助创业者和求职者快速理解政策红利，降低政策信息获取门槛
-- **核心价值**：信息差价值（政策红利不对称）+ 时效提醒（申报窗口期）+ 新政推送（第一时间获取）
-- **目标用户**：创业者（企业主、个体工商户）、求职者（应届生、转行者）、HR/HRBP、政策申报专员
+## 安装与兼容性
 
-## 二、核心功能
+### 支持的平台
+- ✅ **Claude Code** (v0.7.0+)
+- ✅ **OpenClaw** (v1.0.0+)
+- ✅ **Codex CLI** (latest)
+- ✅ **Cursor** (latest)
+- 🟡 **Claude Desktop** - 需要手动复制 SKILL.md 到项目目录
 
-### 2.1 政策检索（search_policy）
+### 安装方式
 
-| 功能 | 说明 |
-|------|------|
-| 关键词搜索 | 支持政策名称、文号、关键词模糊匹配 |
-| 地域筛选 | 国家/省/市/区四级筛选 |
-| 行业匹配 | 科技类、制造类、服务类、农业类等 |
-| 时间排序 | 按发布日期、截止日期排序 |
-| 类型筛选 | 补贴类、税收优惠、人才引进、创业扶持等 |
+**方式一：自动安装 (推荐)**
+```bash
+# Claude Code
+claude mcp add <repo-name> -- npx skills add chenshuai9101/<repo-name>
 
-**输入参数**：
-```python
+# OpenClaw
+clawhub install chenshuai9101/<repo-name>
+
+# 或直接克隆
+git clone https://github.com/chenshuai9101/<repo-name>.git
+```
+
+**方式二：手动安装**
+```bash
+# 复制到目标项目
+cp -r <repo-name>/* /your-project/.claude/skills/
+```
+
+**方式三：通过Claude Code Marketplace安装**
+```json
 {
-    "keywords": str,      # 搜索关键词
-    "region": str,        # 地域范围：national/province/city
-    "industry": str,      # 行业类型
-    "policy_type": str,   # 政策类型
-    "deadline_before": str # 截止日期筛选
+  "skills": ["chenshuai9101/<repo-name>"]
 }
 ```
 
-**输出**：
-```python
+
+## 一、AI/Agent友好型设计
+
+### 1.1 标准化的输入输出格式
+
+**输入格式**：
+```json
 {
-    "policies": [
-        {
-            "id": str,
-            "title": str,
-            "source": str,
-            "publish_date": str,
-            "deadline": str,
-            "summary": str,
-            "match_score": float
-        }
-    ],
-    "total": int
+  "operation": "要执行的操作",
+  "data": "输入数据",
+  "options": {},
+  "metadata": {
+    "request_id": "唯一请求ID",
+    "callback_url": "可选回调URL"
+  }
 }
 ```
 
-### 2.2 政策解析（analyze_policy）
-
-| 功能 | 说明 |
-|------|------|
-| 核心要点提取 | 政策核心内容提炼为3-5个要点 |
-| 适用条件分析 | 列出申报条件、资格要求 |
-| 申报流程梳理 | 时间线 + 所需材料清单 |
-| 补贴额度计算 | 自动计算最高可申请金额 |
-| 风险提示 | 不符合条件项、常见被拒原因 |
-
-**输入参数**：
-```python
+**输出格式**：
+```json
 {
-    "policy_id": str,
-    "user_profile": {
-        "region": str,
-        "industry": str,
-        "company_type": str,  # 国有企业/民营企业/个体工商户
-        "employee_count": int,
-        "annual_revenue": float,
-        "qualifications": list  # 已取得的资质证书
+  "status": "success|error|processing",
+  "result": "处理结果",
+  "metadata": {
+    "processing_time_ms": 123,
+    "resource_usage": {
+      "memory_mb": 128,
+      "cpu_percent": 15.5
     }
+  },
+  "errors": [],
+  "warnings": []
 }
 ```
 
-**输出**：
+### 1.2 错误处理规范
+- 使用标准化的错误代码
+- 提供详细的错误信息
+- 支持错误恢复机制
+- 包含调试信息
+
+### 1.3 进度反馈机制
+- 支持实时进度更新
+- 可配置的更新频率
+- 进度回调接口
+- 任务取消支持
+
+## 二、开箱即用状态
+
+### 2.1 最小化依赖
+- 核心依赖：Python 3.8+
+- 可选依赖：按需安装
+- 自动依赖检测
+- 一键安装脚本
+
+### 2.2 自动环境配置
+```bash
+# 一键安装脚本
+./install.sh
+
+# 或使用pip
+pip install policy-analyzer
+```
+
+### 2.3 自包含配置
+```yaml
+# config.yaml
+policy-analyzer:
+  enabled: true
+  performance:
+    cache_enabled: true
+    max_workers: 4
+  logging:
+    level: INFO
+    file: "./logs/policy-analyzer.log"
+```
+
+## 三、核心功能
+
+### 3.1 主要功能
+根据具体skill的功能进行描述
+
+### 3.2 使用示例
 ```python
+from policy_analyzer import SkillAPI
+
+# 初始化
+skill = SkillAPI()
+
+# 基本使用
+result = skill.process({"data": "输入数据"})
+
+print(f"处理结果: {result}")
+```
+
+## 四、API参考
+
+### 4.1 REST API端点
+- `POST /api/v1/process` - 处理请求
+- `GET /api/v1/status/:task_id` - 获取任务状态
+- `GET /api/v1/health` - 健康检查
+
+### 4.2 Python API
+```python
+class SkillAPI:
+    def process(self, input_data, options=None):
+        '''处理输入数据'''
+        
+    def batch_process(self, inputs, options=None):
+        '''批量处理'''
+        
+    async def process_async(self, input_data, options=None):
+        '''异步处理'''
+```
+
+## 五、部署指南
+
+### 5.1 Docker部署
+```dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+CMD ["python", "main.py"]
+```
+
+### 5.2 监控与维护
+- 健康检查：`/health`
+- 性能指标：`/metrics`
+- 日志管理
+- 自动备份
+
+## 六、更新日志
+
+### v1.0.0
+- 初始版本发布
+- 支持AI/Agent友好型设计
+- 实现开箱即用状态
+- 提供完整的API文档
+
+
+## 边界声明
+
+### NOT FOR （不要使用此skill处理以下内容）
+- 通用的代码开发任务（请使用编码技能）
+- 跨平台文件格式转换（请使用doc-processor或media-toolkit）
+- 不具备完整输入数据的情况（请先提供数据）
+- 实时数据流处理（本skill为batch处理模式）
+- 需要专有API密钥但未配置的场景
+
+### 触发词
+- 当用户明确要求使用本skill的领域时
+- 当用户提供的数据格式与本skill输入规范匹配时
+- 不主动触发：当用户仅询问一般性问题时
+
+### 输出保证
+- 所有输出均包含错误处理信息
+- 失败时提供明确的错误原因和修复建议
+- 逐步回退：`最佳模型 → 备用模型 → 确定性降级`
+
+
+## 结构化输出兼容性指南
+
+本skill依赖LLM的结构化输出能力。以下是为确保稳定性的建议：
+
+### 如果遇到JSON解析错误
+
+1. **使用支持JSON Schema的模型**: gpt-4o, claude-sonnet-4, claude-haiku-3.5
+2. **本地模型用户**: 
+   - 使用 `qwen2.5-instruct` (7B/14B+) 或 `mistral-large` 或 `command-r-plus`
+   - 在prompt中要求纯JSON输出，不加markdown包裹
+3. **中转代理用户**:
+   - 确保中转层不过滤 `thinking` 过程的 `<thinking>` 标签
+   - 如果包含thinking过程，要求模型去除后重新输出
+
+### 自动修复逻辑
+
+如果LLM返回的JSON格式有误，按以下顺序修复:
+```python
+def safe_parse_json(raw_text: str) -> dict:
+    import json, re
+    # Step 1: 提取JSON块
+    json_match = re.search(r'```(?:json)?\n(.*?)\n```', raw_text, re.DOTALL)
+    if json_match:
+        raw_text = json_match.group(1)
+    # Step 2: 替换全角符号
+    raw_text = raw_text.replace('"', '"').replace('"', '"').replace("'", "'")
+    raw_text = raw_text.replace('，', ',').replace('：', ':')
+    # Step 3: 去除尾部逗号
+    raw_text = re.sub(r',\s*}', '}', raw_text)
+    raw_text = re.sub(r',\s+\]', ']', raw_text)
+    # Step 4: 尝试修复
+    try:
+        return json.loads(raw_text)
+    except json.JSONDecodeError:
+        # 最终降级: 使用ast.literal_eval或报错带原始文本
+        import ast
+        try:
+            return ast.literal_eval(raw_text)
+        except:
+            raise ValueError(f"JSON解析失败。原始文本:\n{raw_text[:500]}")
+```
+
+
+## 快速上手
+
+### 一分钟开始使用
+
+```bash
+# 1. 准备输入数据（JSON格式）
+cat > input.json << 'EOF'
 {
-    "policy_id": str,
-    "core_points": [str],        # 核心要点
-    "eligibility": {
-        "qualified": bool,
-        "conditions": [str],
-        "missing_items": [str]
-    },
-    "application_process": {
-        "steps": [{"step": int, "action": str, "duration": str}],
-        "materials": [str],
-        "estimated_time": str
-    },
-    "subsidy_estimate": {
-        "min": float,
-        "max": float,
-        "calculation_basis": str
-    },
-    "risk_alerts": [str]
+  "operation": "process",
+  "data": "<你的数据>",
+  "options": {
+    "model": "auto",
+    "retry_on_fail": true
+  }
 }
+EOF
+
+# 2. 直接输出结果
+# （本skill会自动识别输入格式并处理）
+
+# 3. 查看工作流程
+# - 步骤1: 验证输入数据完整性
+# - 步骤2: 选择最优处理策略
+# - 步骤3: 执行处理并输出结果
+# - 步骤4: 错误检查与自动修复
 ```
 
-### 2.3 个性化匹配（match_policy）
-
-| 功能 | 说明 |
-|------|------|
-| 用户画像匹配 | 基于用户基本信息推荐最相关政策 |
-| 资格预判 | 快速判断是否符合基本申报条件 |
-| 成功率评估 | 基于历史数据评估申报成功率 |
-| 优先级排序 | 按匹配度+补贴额度+时效性综合排序 |
-
-**输入参数**：
-```python
-{
-    "user_profile": {
-        "region": str,
-        "industry": str,
-        "company_type": str,
-        "employee_count": int,
-        "annual_revenue": float,
-        "qualifications": list,
-        "business_age": int,      # 经营年限
-        "is_high_tech": bool,    # 是否高新企业
-        "is_small_micro": bool   # 是否小微企业
-    },
-    "focus_areas": [str],        # 关注的政策领域
-    "limit": int                 # 返回数量限制
-}
-```
-
-**输出**：
-```python
-{
-    "matched_policies": [
-        {
-            "policy_id": str,
-            "title": str,
-            "match_score": float,        # 0-100
-            "success_probability": float, # 0-100
-            "estimated_subsidy": float,
-            "urgency": str,               # high/medium/low
-            "reasons": [str]              # 匹配原因说明
-        }
-    ],
-    "total_matched": int,
-    "recommendations": str           # 整体建议
-}
-```
-
-### 2.4 时效提醒（get_reminders）
-
-| 功能 | 说明 |
-|------|------|
-| 政策截止日期提醒 | 提前7/14/30天提醒 |
-| 新政推送 | 实时监控最新政策发布 |
-| 申报窗口期提醒 | 申报倒计时 + 错过风险提示 |
-| 状态追踪 | 申报进度、结果查询 |
-
-**输入参数**：
-```python
-{
-    "user_id": str,
-    "subscribed_policies": [str],
-    "reminder_days": [int]  # 提前提醒天数
-}
-```
-
-**输出**：
-```python
-{
-    "reminders": [
-        {
-            "policy_id": str,
-            "title": str,
-            "deadline": str,
-            "days_remaining": int,
-            "urgency_level": str,
-            "action_required": str
-        }
-    ],
-    "new_policies": [str],  # 最新政策列表
-    "warning_policies": [str]  # 即将截止的政策
-}
-```
-
-## 三、核心数据结构
-
-### 3.1 政策实体
-
-```python
-class Policy:
-    policy_id: str           # 政策唯一标识
-    title: str               # 政策标题
-    source: str              # 发布来源
-    source_url: str          # 原文链接
-    region: str              # 适用地域
-    industry: str            # 适用行业
-    policy_type: str         # 政策类型
-    publish_date: str        # 发布日期
-    deadline: str            # 截止日期
-    content: str             # 政策全文
-    core_points: [str]       # 核心要点
-    eligibility: [str]       # 申报条件
-    materials: [str]         # 所需材料
-    subsidy_info: dict       # 补贴信息
-    application_steps: [dict] # 申报步骤
-```
-
-### 3.2 用户画像
-
-```python
-class UserProfile:
-    user_id: str
-    region: str
-    industry: str
-    company_type: str
-    employee_count: int
-    annual_revenue: float
-    qualifications: [str]
-    business_age: int
-    is_high_tech: bool
-    is_small_micro: bool
-    contact_email: str
-    subscribed_keywords: [str]
-```
-
-## 四、实现方案
-
-### 4.1 政策库
-
-| 层级 | 数据来源 | 更新频率 |
-|------|----------|----------|
-| 国家级 | 国务院、发改委、财政部官网 | 实时 |
-| 省级 | 各省政务服务网 | 每日 |
-| 市级 | 各地市政策文件库 | 每日 |
-| 行业专项 | 工信部、科技部、人社部等 | 实时 |
-
-### 4.2 解析引擎架构
+### 完整工作流示例
 
 ```
-用户输入 → 意图识别 → 政策检索 → 智能解析 → 匹配计算 → 结果输出
-     ↓          ↓           ↓           ↓           ↓
-  自然语言   分类模型     倒排索引    NLP提取     评分算法
-```
-
-**核心模块**：
-1. **意图识别模块**：判断用户查询类型（检索/解析/匹配）
-2. **检索模块**：基于Elasticsearch的全文检索
-3. **解析模块**：使用NLP提取核心信息点
-4. **匹配模块**：基于规则的资格判断 + 机器学习评分
-
-### 4.3 评分算法
-
-```python
-def calculate_match_score(policy, user_profile):
-    score = 0
-    # 地域匹配 (20分)
-    if policy.region == user_profile.region:
-        score += 20
-    elif policy.region == 'national':
-        score += 15
-    
-    # 行业匹配 (25分)
-    if policy.industry == user_profile.industry:
-        score += 25
-    elif policy.industry == 'general':
-        score += 15
-    
-    # 资质匹配 (30分)
-    qualification_match = len(set(policy.required_qualifications) & 
-                              set(user_profile.qualifications))
-    score += min(qualification_match * 10, 30)
-    
-    # 规模匹配 (15分)
-    if is_scale_compatible(policy, user_profile):
-        score += 15
-    
-    # 时效性 (10分)
-    days_to_deadline = calculate_days(policy.deadline)
-    if days_to_deadline > 30:
-        score += 10
-    elif days_to_deadline > 7:
-        score += 5
-    
-    return score
-```
-
-## 五、API接口规范
-
-### 5.1 搜索政策
-
-```
-POST /api/v1/policies/search
-Content-Type: application/json
-
-Request Body:
-{
-    "keywords": "科技型中小企业",
-    "region": "广东省",
-    "industry": "科技",
-    "page": 1,
-    "page_size": 10
-}
-
-Response:
-{
-    "code": 200,
-    "message": "success",
-    "data": {
-        "policies": [...],
-        "total": 156,
-        "page": 1,
-        "page_size": 10
-    }
-}
-```
-
-### 5.2 解析政策
-
-```
-POST /api/v1/policies/analyze
-Content-Type: application/json
-
-Request Body:
-{
-    "policy_id": "POL20240001",
-    "user_profile": {...}
-}
-```
-
-### 5.3 匹配政策
-
-```
-POST /api/v1/policies/match
-Content-Type: application/json
-
-Request Body:
-{
-    "user_profile": {...},
-    "limit": 10
-}
-```
-
-## 六、质量标准
-
-### 6.1 准确性标准
-
-| 指标 | 目标值 | 测量方法 |
-|------|--------|----------|
-| 政策检索准确率 | ≥85% | 抽样人工评估 |
-| 匹配度评估准确率 | ≥80% | 历史申报数据验证 |
-| 要点提取完整度 | ≥90% | 核心要点覆盖率 |
-| 申报条件识别率 | ≥95% | 条件项遗漏检测 |
-
-### 6.2 性能标准
-
-| 指标 | 目标值 |
-|------|--------|
-| 单次检索响应时间 | <3秒 |
-| 政策解析响应时间 | <15秒 |
-| 批量匹配响应时间 | <30秒 |
-| 系统可用性 | ≥99.5% |
-
-### 6.3 用户满意度
-
-| 指标 | 目标值 |
-|------|--------|
-| 整体满意度 | ≥4.2/5.0 |
-| 政策实用性评分 | ≥4.0/5.0 |
-| 信息准确度评分 | ≥4.5/5.0 |
-| 响应速度评分 | ≥4.0/5.0 |
-
-## 七、数据更新机制
-
-### 7.1 更新策略
-
-```
-国家级政策: 实时监控 + 2小时内入库
-省级政策: 每日增量更新
-市级政策: 每日增量更新
-历史政策: 归档处理 + 标记失效
-```
-
-### 7.2 失效检测
-
-- 定期检查政策链接有效性
-- 自动标记已过期政策
-- 用户订阅过期提醒
-
-## 八、安全与合规
-
-- 所有政策数据来源于政府官方渠道
-- 不存储敏感个人信息
-- 政策解读仅供参考，以官方原文为准
-- 数据加密传输（HTTPS）
-- 定期安全审计
-
-## 九、使用示例
-
-### 示例1：创业者查找补贴政策
-
-```python
-# 用户输入
-result = search_policy(
-    keywords="创业补贴",
-    region="深圳",
-    industry="科技",
-    policy_type="创业扶持"
-)
-
-# 返回匹配度最高的创业补贴政策列表
-```
-
-### 示例2：政策深度解析
-
-```python
-# 用户输入
-result = analyze_policy(
-    policy_id="POL20240001",
-    user_profile={
-        "region": "深圳",
-        "industry": "互联网",
-        "company_type": "有限责任公司",
-        "employee_count": 15,
-        "annual_revenue": 5000000,
-        "is_small_micro": True
-    }
-)
-
-# 返回详细解析报告，包含申报条件、所需材料、预估补贴金额
-```
-
-### 示例3：一键智能匹配
-
-```python
-# 用户输入
-result = match_policy(
-    user_profile={...},
-    focus_areas=["补贴", "税收优惠", "人才引进"],
-    limit=5
-)
-
-# 返回个性化政策推荐清单，按匹配度排序
+输入示例 → 数据验证 → 策略选择 → 错误保护 → 结构化输出 → 质量检查 → 最终输出
 ```
