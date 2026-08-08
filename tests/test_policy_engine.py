@@ -51,7 +51,7 @@ def test_policy_analyze():
         }
     )
     
-    print(f"✅ 政策解析成功")
+    print("✅ 政策解析成功")
     
     return True
 
@@ -74,7 +74,7 @@ def test_policy_match():
     )
     
     assert "matched_policies" in recommendations
-    print(f"✅ 政策匹配成功")
+    print("✅ 政策匹配成功")
     
     return True
 
@@ -88,7 +88,7 @@ def test_reminder():
     alerts = reminder.get_reminders(reminder_days=[7, 14, 30])
     
     assert "reminders" in alerts
-    print(f"✅ 时效提醒功能正常")
+    print("✅ 时效提醒功能正常")
     
     return True
 

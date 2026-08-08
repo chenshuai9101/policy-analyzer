@@ -4,8 +4,8 @@
 """
 
 import re
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
+from datetime import datetime
+from typing import Dict, List, Any
 from dataclasses import dataclass, field
 
 
@@ -452,7 +452,7 @@ class PolicyAnalyzer:
                 if "年" in req:
                     years = int(re.search(r'(\d+)', req).group(1)) if re.search(r'(\d+)', req) else 0
                     if profile.business_age >= years:
-                        qualified_conditions.append(f"✓ 经营年限满足要求")
+                        qualified_conditions.append("✓ 经营年限满足要求")
                     else:
                         missing_items.append(f"✗ 需经营满{years}年")
                     break
